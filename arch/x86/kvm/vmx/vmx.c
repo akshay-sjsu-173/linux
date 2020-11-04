@@ -6025,11 +6025,11 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 		 u64 endExitTime=rdtsc(); //record the end time after handling exit
 		 delta=endExitTime-startExitTime; //calculate the current delta
 		 atomic64_add(delta,&totalExitProcessingTime); //add current delta to total time
-		 return returnValue //return the handle_exit function value
+		 return returnValue; //return the handle_exit function value
 	}
 	if (is_guest_mode(vcpu) && nested_vmx_reflect_vmexit(vcpu)){
 		int returnValue = nested_vmx_reflect_vmexit(vcpu);
-		u64 end_exit_time=rdtsc();
+		u64 endExitTime=rdtsc();
 		delta=endExitTime-startExitTime;
 		atomic64_add(delta,&totalExitProcessingTime); 
 		return returnValue;
