@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0-only
+/* SPDX-License-Identifier: GPL-2.0-only*/
 /*
  * Kernel-based Virtual Machine driver for Linux
  *
@@ -13,7 +13,7 @@
  *   Yaniv Kamay  <yaniv@qumranet.com>
  */
 
-#include <linux/frame.h>
+//#include <linux/frame.h>
 #include <linux/highmem.h>
 #include <linux/hrtimer.h>
 #include <linux/kernel.h>
@@ -5985,12 +5985,19 @@ void dump_vmcs(void)
  * The guest has exited.  See if we can fix it or if we need userspace
  * assistance.
  */
+extern atomic_t NUMS_EXIT;
+extern atomic64_t exit_processing_time;
+
 static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
+  	
+	u64 delta_time = 0;
+	u64 start_exit_time=rdtsc();
 	struct vcpu_vmx *vmx = to_vmx(vcpu);
 	u32 exit_reason = vmx->exit_reason;
 	u32 vectoring_info = vmx->idt_vectoring_info;
-
+	atomic_inc(&NUMS_EXIT);
+  //printk("HANDLE VMEXIT !!!!!!!!!!!!!!!!!!");
 	/*
 	 * Flush logged GPAs PML buffer, this will make dirty_bitmap more
 	 * updated. Another good is, in kvm_vm_ioctl_get_dirty_log, before
@@ -6010,10 +6017,26 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	WARN_ON_ONCE(vmx->nested.nested_run_pending);
 
 	/* If guest state is invalid, start emulating */
-	if (vmx->emulation_required)
-		return handle_invalid_guest_state(vcpu);
+	//if (vmx->emulation_required)
+  //  printk(KERN_INFO "Invalid Guest State. Starting Emulation");
+	//	return handle_invalid_guest_state(vcpu);
+	if (vmx->emulation_required){
+		int returnValue=(int)handle_invalid_guest_state(vcpu);
+		 u64 end_exit_time=rdtsc();
+		 delta_time=end_exit_time-start_exit_time;
+		 atomic64_add(delta_time,&exit_processing_time);
+		 return returnValue;
+	}
+	if (is_guest_mode(vcpu) && nested_vmx_reflect_vmexit(vcpu)){
 
-	if (is_guest_mode(vcpu)) {
+		int returnValue=nested_vmx_reflect_vmexit(vcpu);
+		u64 end_exit_time=rdtsc();
+		delta_time=end_exit_time-start_exit_time;
+		atomic64_add(delta_time,&exit_processing_time);
+		return returnValue;
+	}
+
+	//if (is_guest_mode(vcpu)) {
 		/*
 		 * The host physical addresses of some pages of guest memory
 		 * are loaded into the vmcs02 (e.g. vmcs12's Virtual APIC
@@ -6025,11 +6048,11 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 		 * Mark them dirty on every exit from L2 to prevent them from
 		 * getting out of sync with dirty tracking.
 		 */
-		nested_mark_vmcs12_pages_dirty(vcpu);
+	//	nested_mark_vmcs12_pages_dirty(vcpu);
 
-		if (nested_vmx_reflect_vmexit(vcpu))
-			return 1;
-	}
+	//	if (nested_vmx_reflect_vmexit(vcpu))
+	//		return 1;
+	//}
 
 	if (exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY) {
 		dump_vmcs();
@@ -6102,6 +6125,17 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 
 	if (exit_reason >= kvm_vmx_max_exit_handlers)
 		goto unexpected_vmexit;
+  else if(exit_reason < kvm_vmx_max_exit_handlers && kvm_vmx_exit_handlers[exit_reason]){	 
+		 int returnValue=kvm_vmx_exit_handlers[exit_reason](vcpu);
+		 u64 end_exit_time=rdtsc();
+		 delta_time=end_exit_time-start_exit_time;
+		 atomic64_add(delta_time,&exit_processing_time);
+		 return returnValue;
+
+  }
+
+
+  //  printk("Handling "+exit_reason);
 #ifdef CONFIG_RETPOLINE
 	if (exit_reason == EXIT_REASON_MSR_WRITE)
 		return kvm_emulate_wrmsr(vcpu);
@@ -6136,6 +6170,177 @@ unexpected_vmexit:
 	return 0;
 }
 
+//===============================================================================//
+//static int vmx_handle_exit(struct kvm_vcpu *vcpu,
+//	enum exit_fastpath_completion exit_fastpath)
+//{
+//	struct vcpu_vmx *vmx = to_vmx(vcpu);
+//	u32 exit_reason = vmx->exit_reason;
+//	u32 vectoring_info = vmx->idt_vectoring_info;
+//
+//	int kvm_exits; //to store kvm_vmx_exit_handlers[exit_reason](vcpu); 
+//
+//	extern atomic_t num_exits[69];
+//	extern uint32_t exits_valid[69];
+//	//extern atomic_t time_spent[69];
+//	extern atomic64_t time_spent[69];
+//	//extern uint64_t time_spent[69]; 
+//
+//	//Starting Time Stamp Counter
+//	//printk("Start Time : %llu\n",rdtsc());
+//	start_time[exit_reason] = rdtsc();	
+//	//printk("Exit Reason %d \t Start Time %llu",exit_reason,start_time[exit_reason]);
+//
+//	//start_time[exit_reason].store(rdtsc(),std::memory_order_relaxed);
+//	//atomic_set(&start_time[exit_reason],rdtsc());
+//
+//	if(exit_reason >= 0 && exit_reason < 69){
+//		atomic_inc(&num_exits[exit_reason]);
+//	}
+//
+//	trace_kvm_exit(exit_reason, vcpu, KVM_ISA_VMX);
+//
+//	/*
+//	 * Flush logged GPAs PML buffer, this will make dirty_bitmap more
+//	 * updated. Another good is, in kvm_vm_ioctl_get_dirty_log, before
+//	 * querying dirty_bitmap, we only need to kick all vcpus out of guest
+//	 * mode as if vcpus is in root mode, the PML buffer must has been
+//	 * flushed already.
+//	 */
+//	if (enable_pml)
+//		vmx_flush_pml_buffer(vcpu);
+//
+//	/* If guest state is invalid, start emulating */
+//	if (vmx->emulation_required)
+//		return handle_invalid_guest_state(vcpu);
+//
+//	if (is_guest_mode(vcpu) && nested_vmx_exit_reflected(vcpu, exit_reason))
+//		return nested_vmx_reflect_vmexit(vcpu, exit_reason);
+//
+//	if (exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY) {
+//		dump_vmcs();
+//		vcpu->run->exit_reason = KVM_EXIT_FAIL_ENTRY;
+//		vcpu->run->fail_entry.hardware_entry_failure_reason
+//			= exit_reason;
+//		return 0;
+//	}
+//
+//	if (unlikely(vmx->fail)) {
+//		dump_vmcs();
+//		vcpu->run->exit_reason = KVM_EXIT_FAIL_ENTRY;
+//		vcpu->run->fail_entry.hardware_entry_failure_reason
+//			= vmcs_read32(VM_INSTRUCTION_ERROR);
+//		return 0;
+//	}
+//
+//	/*
+//	 * Note:
+//	 * Do not try to fix EXIT_REASON_EPT_MISCONFIG if it caused by
+//	 * delivery event since it indicates guest is accessing MMIO.
+//	 * The vm-exit can be triggered again after return to guest that
+//	 * will cause infinite loop.
+//	 */
+//	if ((vectoring_info & VECTORING_INFO_VALID_MASK) &&
+//			(exit_reason != EXIT_REASON_EXCEPTION_NMI &&
+//			exit_reason != EXIT_REASON_EPT_VIOLATION &&
+//			exit_reason != EXIT_REASON_PML_FULL &&
+//			exit_reason != EXIT_REASON_TASK_SWITCH)) {
+//		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+//		vcpu->run->internal.suberror = KVM_INTERNAL_ERROR_DELIVERY_EV;
+//		vcpu->run->internal.ndata = 3;
+//		vcpu->run->internal.data[0] = vectoring_info;
+//		vcpu->run->internal.data[1] = exit_reason;
+//		vcpu->run->internal.data[2] = vcpu->arch.exit_qualification;
+//		if (exit_reason == EXIT_REASON_EPT_MISCONFIG) {
+//			vcpu->run->internal.ndata++;
+//			vcpu->run->internal.data[3] =
+//				vmcs_read64(GUEST_PHYSICAL_ADDRESS);
+//		}
+//		return 0;
+//	}
+//
+//	if (unlikely(!enable_vnmi &&
+//		     vmx->loaded_vmcs->soft_vnmi_blocked)) {
+//		if (vmx_interrupt_allowed(vcpu)) {
+//			vmx->loaded_vmcs->soft_vnmi_blocked = 0;
+//		} else if (vmx->loaded_vmcs->vnmi_blocked_time > 1000000000LL &&
+//			   vcpu->arch.nmi_pending) {
+//			/*
+//			 * This CPU don't support us in finding the end of an
+//			 * NMI-blocked window if the guest runs with IRQs
+//			 * disabled. So we pull the trigger after 1 s of
+//			 * futile waiting, but inform the user about this.
+//			 */
+//			printk(KERN_WARNING "%s: Breaking out of NMI-blocked "
+//			       "state on VCPU %d after 1 s timeout\n",
+//			       __func__, vcpu->vcpu_id);
+//			vmx->loaded_vmcs->soft_vnmi_blocked = 0;
+//		}
+//	}
+//
+//	if (exit_fastpath == EXIT_FASTPATH_SKIP_EMUL_INS) {
+//		kvm_skip_emulated_instruction(vcpu);
+//		return 1;
+//	}
+//
+//	if (exit_reason >= kvm_vmx_max_exit_handlers)
+//		goto unexpected_vmexit;
+//#ifdef CONFIG_RETPOLINE
+//	if (exit_reason == EXIT_REASON_MSR_WRITE)
+//		return kvm_emulate_wrmsr(vcpu);
+//	else if (exit_reason == EXIT_REASON_PREEMPTION_TIMER)
+//		return handle_preemption_timer(vcpu);
+//	else if (exit_reason == EXIT_REASON_INTERRUPT_WINDOW)
+//		return handle_interrupt_window(vcpu);
+//	else if (exit_reason == EXIT_REASON_EXTERNAL_INTERRUPT)
+//		return handle_external_interrupt(vcpu);
+//	else if (exit_reason == EXIT_REASON_HLT)
+//		return kvm_emulate_halt(vcpu);
+//	else if (exit_reason == EXIT_REASON_EPT_MISCONFIG)
+//		return handle_ept_misconfig(vcpu);
+//#endif
+//
+//	exit_reason = array_index_nospec(exit_reason,
+//					 kvm_vmx_max_exit_handlers);
+//	if (!kvm_vmx_exit_handlers[exit_reason])
+//		goto unexpected_vmexit;
+//
+//	// assigned kvm_vmx_exit_handlers[exit_reason](vcpu) to a variable to prevent function return
+//	kvm_exits = kvm_vmx_exit_handlers[exit_reason](vcpu); 
+//
+//	//Stopping Time Stamp Counter
+//	//printk("End Time : %llu\n",rdtsc());
+//	end_time[exit_reason] = rdtsc();
+//	//printk("Exit Reason %d \t End Time %llu",exit_reason,end_time[exit_reason]);
+//	//printk("Exit Reason %d \t Time Spent %llu",exit_reason,(end_time[exit_reason]-start_time[exit_reason]));
+//	//end_time[exit_reason].store(rdtsc(),std::memory_order_relaxed);
+//	//atomic_set(&end_time[exit_reason],rdtsc());
+//	
+//	if(exit_reason >= 0 && exit_reason < 69 && exits_valid[exit_reason] == 1) {
+//		time_diff[exit_reason] = (end_time[exit_reason] - start_time[exit_reason]);
+//		//time_spent[exit_reason] += time_diff[exit_reason];
+//		atomic64_add(time_diff[exit_reason],&time_spent[exit_reason]);
+//		// if(exit_reason != 48)
+//		// 	printk("Exit Reason %d CPU Cycles Frequency %llu",exit_reason,time_diff[exit_reason]);
+//		//atomic_add(time_diff,&time_spent[exit_reason]);
+//		//atomic_add(atomic_read(&time_spent[exit_reason]),(atomic_read(&start_time[exit_reason]), atomic_read(&end_time[exit_reason])));
+//
+//	}
+//	
+//	//return kvm_vmx_exit_handlers[exit_reason](vcpu); 
+//	return kvm_exits;
+//
+//unexpected_vmexit:
+//	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n", exit_reason);
+//	dump_vmcs();
+//	vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+//	vcpu->run->internal.suberror =
+//			KVM_INTERNAL_ERROR_UNEXPECTED_EXIT_REASON;
+//	vcpu->run->internal.ndata = 1;
+//	vcpu->run->internal.data[0] = exit_reason;
+//	return 0;
+//}
+//==============================================================================//
 /*
  * Software based L1D cache flush which is used when microcode providing
  * the cache control MSR is not loaded.

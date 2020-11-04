@@ -1072,20 +1072,39 @@ bool kvm_cpuid(struct kvm_vcpu *vcpu, u32 *eax, u32 *ebx,
 }
 EXPORT_SYMBOL_GPL(kvm_cpuid);
 
+atomic_t NUMS_EXIT = ATOMIC_INIT(0);
+atomic64_t exit_processing_time = ATOMIC64_INIT(0);
+EXPORT_SYMBOL(exit_processing_time);
+EXPORT_SYMBOL(NUMS_EXIT);
+
 int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 {
 	u32 eax, ebx, ecx, edx;
+	u64 temp;
 
 	if (cpuid_fault_enabled(vcpu) && !kvm_require_cpl(vcpu, 0))
 		return 1;
-
 	eax = kvm_rax_read(vcpu);
 	ecx = kvm_rcx_read(vcpu);
-	kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
-	kvm_rax_write(vcpu, eax);
-	kvm_rbx_write(vcpu, ebx);
-	kvm_rcx_write(vcpu, ecx);
-	kvm_rdx_write(vcpu, edx);
+	printk("Number of Exits: %d Processing Time : %lld",atomic_read(&NUMS_EXIT),atomic64_read(&exit_processing_time));
+
+  if ( eax == 0x4FFFFFFF ) {
+		eax=atomic_read(&NUMS_EXIT);
+		temp=atomic64_read(&exit_processing_time);
+		ebx=(u32)(temp>>32);
+		ecx=(u32)(temp);
+		//kvm_rax_write(vcpu, eax);
+		//kvm_rbx_write(vcpu, ebx);
+		//kvm_rcx_write(vcpu, ecx);
+
+	} else {
+	  kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
+	}
+	  kvm_rax_write(vcpu, eax);
+	  kvm_rbx_write(vcpu, ebx);
+	  kvm_rcx_write(vcpu, ecx);
+	  kvm_rdx_write(vcpu, edx);
+
 	return kvm_skip_emulated_instruction(vcpu);
 }
 EXPORT_SYMBOL_GPL(kvm_emulate_cpuid);
