@@ -123,14 +123,15 @@ as its parameter. It will print each capability of the given struct.
 
 # CMPE283 - Assignment 2
 
-- PROCESS and PROBLEMS FACED:
+- PROCESS AND PROBLEMS FACED:
 - Step1: Identify the functions which are responsible for handling VM Exits. I identified "vm_handle_exit" from vmx.c and "kvm_emulate_cpuid" as the two target functions.
   - vmx.c holds a map of all possible exits along with their corresponding exit handling function. Every time a VM exit occurs, the "vm_handle_exit" function is executed. This     function is responsible for delegating the handling of the exit to one of the handler functions as listed in the map.
   - The function that we are interested in for this assignment is the "kvm_emulate_cpuid" which is located in cpuid.c. We need to add a special handling of the leaf function       "0x4FFFFFFF".
 - Step2: Setting up the inner VM caused me a lot of issues. I had the Ubuntu host setup correctly for assignment1. From my understanding, I thought I had to deploy a VM in the     host in order to test the VM exits. I installed VirtualBox for assignment1 itself. I started writing code to test functionality by adding some print statements but was unable   to get any results.
 - Step3: The root cause was identified after considerable discussion with classmates closer to the assignment deadline. I found out that we needed to run a VM using qemu instead   of virtualbox. I still did not figure out why virtualbox did not work.
+- Step4: Another error that I ran into for a long time was because I tried to build the "cpuid" module instead of rebuilding the "kvm" module.
 
-- STEPS to emulate functionality:
+- STEPS TO EMULATE ASSIGNMENT FUNCTIONALITY:
   - Clone the github repository.
   - Execute "cd linux"
   - Run the following commands to load the modules:
@@ -143,6 +144,9 @@ as its parameter. It will print each capability of the given struct.
     qemu-system-x86_64 -m 2048 -drive file=ubuntu.qcow,format=qcow2 -enable-kvm -smp 2,sockets=1,cores=1,threads=2 -d cpu_reset -no-fd=bootchk
   - The above command assumes that you have already created a disk with ubuntu installed before booting the machine.
   - Once the inner VM starts, you can either run your own custom program or simply execute the instruction "cpuid -l 0x4FFFFFFF". This command will invoke the particular leaf function.
+  - Following scripts have been modified with correct comments in the code to successfully emulate the assignment functionality:
+    - https://github.com/akshay-sjsu-173/linux/blob/master/arch/x86/kvm/vmx/vmx.c
+    - https://github.com/akshay-sjsu-173/linux/blob/master/arch/x86/kvm/cpuid.c
 
 - COMMENTS ON EXITS:
   - I encountered an arbitrary number of exits based on the time after VM boot that I execute the cpuid instruction in the inner VM.
