@@ -5985,18 +5985,18 @@ void dump_vmcs(void)
  * The guest has exited.  See if we can fix it or if we need userspace
  * assistance.
  */
-extern atomic_t NUMS_EXIT;
-extern atomic64_t exit_processing_time;
+extern atomic_t numberOfExits;
+extern atomic64_t totalExitProcessingTime;
 
 static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
   	
-	u64 delta_time = 0;
-	u64 start_exit_time=rdtsc();
+	u64 delta = 0; //initialize delta to zero for this exit. final delta will be calculated as start-end
+	u64 startExitTime=rdtsc(); //record the start time for the exit before processing it
 	struct vcpu_vmx *vmx = to_vmx(vcpu);
 	u32 exit_reason = vmx->exit_reason;
 	u32 vectoring_info = vmx->idt_vectoring_info;
-	atomic_inc(&NUMS_EXIT);
+	atomic_inc(&numberOfExits); //increment the number of exits encountered by one
   //printk("HANDLE VMEXIT !!!!!!!!!!!!!!!!!!");
 	/*
 	 * Flush logged GPAs PML buffer, this will make dirty_bitmap more
@@ -6021,18 +6021,17 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
   //  printk(KERN_INFO "Invalid Guest State. Starting Emulation");
 	//	return handle_invalid_guest_state(vcpu);
 	if (vmx->emulation_required){
-		int returnValue=(int)handle_invalid_guest_state(vcpu);
-		 u64 end_exit_time=rdtsc();
-		 delta_time=end_exit_time-start_exit_time;
-		 atomic64_add(delta_time,&exit_processing_time);
-		 return returnValue;
+		 int returnValue = (int)handle_invalid_guest_state(vcpu);
+		 u64 endExitTime=rdtsc(); //record the end time after handling exit
+		 delta=endExitTime-startExitTime; //calculate the current delta
+		 atomic64_add(delta,&totalExitProcessingTime); //add current delta to total time
+		 return returnValue //return the handle_exit function value
 	}
 	if (is_guest_mode(vcpu) && nested_vmx_reflect_vmexit(vcpu)){
-
-		int returnValue=nested_vmx_reflect_vmexit(vcpu);
+		int returnValue = nested_vmx_reflect_vmexit(vcpu);
 		u64 end_exit_time=rdtsc();
-		delta_time=end_exit_time-start_exit_time;
-		atomic64_add(delta_time,&exit_processing_time);
+		delta=endExitTime-startExitTime;
+		atomic64_add(delta,&totalExitProcessingTime); 
 		return returnValue;
 	}
 
@@ -6053,7 +6052,9 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	//	if (nested_vmx_reflect_vmexit(vcpu))
 	//		return 1;
 	//}
-
+	
+	// The next few blocks have a fixed return value and do not invoke any handle functions
+	// Hence, we do not calculate any delta for these. It is negligible.
 	if (exit_reason & VMX_EXIT_REASONS_FAILED_VMENTRY) {
 		dump_vmcs();
 		vcpu->run->exit_reason = KVM_EXIT_FAIL_ENTRY;
@@ -6124,18 +6125,9 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 		return 1;
 
 	if (exit_reason >= kvm_vmx_max_exit_handlers)
-		goto unexpected_vmexit;
-  else if(exit_reason < kvm_vmx_max_exit_handlers && kvm_vmx_exit_handlers[exit_reason]){	 
-		 int returnValue=kvm_vmx_exit_handlers[exit_reason](vcpu);
-		 u64 end_exit_time=rdtsc();
-		 delta_time=end_exit_time-start_exit_time;
-		 atomic64_add(delta_time,&exit_processing_time);
-		 return returnValue;
-
-  }
+		goto unexpected_vmexit; //Exit not listed in exit_handlers map. Hence, we do not know what to do in case of such an exit
 
 
-  //  printk("Handling "+exit_reason);
 #ifdef CONFIG_RETPOLINE
 	if (exit_reason == EXIT_REASON_MSR_WRITE)
 		return kvm_emulate_wrmsr(vcpu);
@@ -6155,8 +6147,17 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 					 kvm_vmx_max_exit_handlers);
 	if (!kvm_vmx_exit_handlers[exit_reason])
 		goto unexpected_vmexit;
-
-	return kvm_vmx_exit_handlers[exit_reason](vcpu);
+	
+	// if exit reason in range of number of exit handlers defined
+	// and if the exit reason is present in map
+	// then handle exit and calculate time spent
+	if(exit_reason < kvm_vmx_max_exit_handlers && kvm_vmx_exit_handlers[exit_reason]){	 
+		 int returnValue = kvm_vmx_exit_handlers[exit_reason](vcpu);
+		 u64 endExitTime=rdtsc();
+		 delta=endExitTime-startExitTime;
+		 atomic64_add(delta,&totalExitProcessingTime);
+		 return returnValue;
+  	}
 
 unexpected_vmexit:
 	vcpu_unimpl(vcpu, "vmx: unexpected exit reason 0x%x\n", exit_reason);
