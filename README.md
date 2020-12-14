@@ -152,3 +152,43 @@ as its parameter. It will print each capability of the given struct.
   - I encountered an arbitrary number of exits based on the time after VM boot that I execute the cpuid instruction in the inner VM.
   - These exits seem stable on executing cpuid multiple times. Number of exits as well as processing time increases linearly on repeated execution of the same exit instruction.
   - Approximately 10698556 exits are observed on a full VM boot with a processing time of 10407133753.
+  
+# CMPE283 - Assignment 3
+- PROCESS AND PROBLEMS FACED:
+  - The aim of this assignment was to create a new leaf function in "CPUID Emulation" code which takes exit number as input in ecx register.
+  - The program must return the number of exits for the exit number which was passed as input.
+  - The main task was to identify the number of exits listed in the Intel SDM and the exits supported by KVM.
+  - SDM lists a total of 65 exit types. The exit numbers range from 0 to 68. Exits which are not listed in intel SDM are numbers 35,38,42 and 65.
+  - Created a leaf function "0x4FFFFFFE" to handle the problem at hand.
+  - Created a list of invalid exits and added the above-mentioned exits to this list. Another list of length 69 i.e. index ranging from 0 to 68 was created to maintain a count of all exits.
+  - On execution of the leaf function, a check was run whether it is one of the exits not listed in SDM or is it an exit with number greater than 68. In case the number if greater than 68, it could be an exit supported by KVM but not listed in SDM.
+  - In order to execute the leaf function, run teh following command: "cpuid -l 0x4FFFFFFE -s exitNumber"
+  
+- STEPS TO EMULATE THE ASSIGNMENT FUNCTIONALITY:
+  - Follow the same steps as mentioned in Assignment 2.
+  
+- COMMENTS ON EXITS:
+  - I encountered an arbitrary number of exits based on the time after VM boot that I execute the cpuid instruction in the inner VM.
+  - These exits seem stable on executing cpuid multiple times. Number of exits as well as processing time increases linearly on repeated execution of the same exit instruction.
+  - Approximately 10698556 exits are observed on a full VM boot with a processing time of 10407133753.
+  - I observed that exit number 28 was the most frequent exit closely followed by exit number 30.
+  - There were a lot of exits with a count of zero i.e. those exits had not occurred during the VM Boot.
+  - Top exit counts:
+    - Exit 28: 1071770
+    - Exit 30: 958254
+    - Exit 10: 541792
+  - More details of all exits can be found at https://github.com/akshay-sjsu-173/linux/blob/master/withEPT.txt
+  - Following scripts have been modified with correct comments in the code to successfully emulate the assignment functionality:
+    - https://github.com/akshay-sjsu-173/linux/blob/master/arch/x86/kvm/vmx/vmx.c
+    - https://github.com/akshay-sjsu-173/linux/blob/master/arch/x86/kvm/cpuid.c
+    
+# CMPE283 - Assignment 4
+
+- There was no code change for this assignment but it included reloading the kvm_intel module with ept=0 i.e. by disabling ept and hence switching to shadow paging mode.
+- The number of exits were expected to increase on the switch to shadow paging. This is because a switch to shadow paging will enable page fault exiting and will also cause more exits on CR3 faults and TLB flushes.
+- This was observed in the output as the number of exits for most exit types increased exponentially.
+- I have run a test code to check the number of exits for exit number 0 to 100.
+- The expectation is that all exits after exit number 68 should be ignored along with a few exits which are not listed in SDM.
+- The logs of these exits can be found in the following files.
+  - Logs with EPT: https://github.com/akshay-sjsu-173/linux/blob/master/withEPT.txt
+  - Logs without EPT: https://github.com/akshay-sjsu-173/linux/blob/master/withoutEPT.txt
