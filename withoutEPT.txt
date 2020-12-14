@@ -1,0 +1,204 @@
+without ept
+
+
+[ 4968.744286] Exit count for 0 = 1142197
+[ 4968.744513] Exit count for 0 = 1142229
+[ 4968.754617] Exit count for 1 = 147513
+[ 4968.754853] Exit count for 1 = 147513
+[ 4968.763696] Exit count for 2 = 0
+[ 4968.763947] Exit count for 2 = 0
+[ 4968.772259] Exit count for 3 = 0
+[ 4968.772636] Exit count for 3 = 0
+[ 4968.781457] Exit count for 4 = 0
+[ 4968.781801] Exit count for 4 = 0
+[ 4968.790366] Exit count for 5 = 0
+[ 4968.790897] Exit count for 5 = 0
+[ 4968.798818] Exit count for 6 = 0
+[ 4968.799087] Exit count for 6 = 0
+[ 4968.807661] Exit count for 7 = 7486
+[ 4968.807943] Exit count for 7 = 7486
+[ 4968.816140] Exit count for 8 = 0
+[ 4968.816396] Exit count for 8 = 0
+[ 4968.828139] Exit count for 9 = 0
+[ 4968.830028] Exit count for 9 = 0
+[ 4968.843960] Exit count for 10 = 111974
+[ 4968.846722] Exit count for 10 = 111975
+[ 4968.860393] Exit count for 11 = 0
+[ 4968.862984] Exit count for 11 = 0
+[ 4968.875888] Exit count for 12 = 7407
+[ 4968.878068] Exit count for 12 = 7410
+[ 4968.890451] Exit count for 13 = 0
+[ 4968.893034] Exit count for 13 = 0
+[ 4968.904966] Exit count for 14 = 107259
+[ 4968.907674] Exit count for 14 = 107259
+[ 4968.919482] Exit count for 15 = 0
+[ 4968.922045] Exit count for 15 = 0
+[ 4968.932984] Exit count for 16 = 0
+[ 4968.937422] Exit count for 16 = 0
+[ 4968.950487] Exit count for 17 = 0
+[ 4968.953006] Exit count for 17 = 0
+[ 4968.964595] Exit count for 18 = 0
+[ 4968.967164] Exit count for 18 = 0
+[ 4968.980606] Exit count for 19 = 0
+[ 4968.982625] Exit count for 19 = 0
+[ 4968.993239] Exit count for 20 = 0
+[ 4968.995049] Exit count for 20 = 0
+[ 4969.005367] Exit count for 21 = 0
+[ 4969.008951] Exit count for 21 = 0
+[ 4969.025623] Exit count for 22 = 0
+[ 4969.028336] Exit count for 22 = 0
+[ 4969.041458] Exit count for 23 = 0
+[ 4969.044073] Exit count for 23 = 0
+[ 4969.055822] Exit count for 24 = 0
+[ 4969.058076] Exit count for 24 = 0
+[ 4969.067751] Exit count for 25 = 0
+[ 4969.069714] Exit count for 25 = 0
+[ 4969.079751] Exit count for 26 = 0
+[ 4969.084197] Exit count for 26 = 0
+[ 4969.097488] Exit count for 27 = 0
+[ 4969.100023] Exit count for 27 = 0
+[ 4969.110672] Exit count for 28 = 3507207
+[ 4969.112494] Exit count for 28 = 3507227
+[ 4969.123756] Exit count for 29 = 2
+[ 4969.125629] Exit count for 29 = 2
+[ 4969.135926] Exit count for 30 = 1034381
+[ 4969.137884] Exit count for 30 = 1034381
+[ 4969.150672] Exit count for 31 = 319
+[ 4969.152471] Exit count for 31 = 319
+[ 4969.164379] Exit count for 32 = 27905
+[ 4969.166973] Exit count for 32 = 27912
+[ 4969.178916] Exit count for 33 = 0
+[ 4969.180988] Exit count for 33 = 0
+[ 4969.192935] Exit count for 34 = 0
+[ 4969.194950] Exit count for 34 = 0
+[ 4969.205657] Exit Reason: 35. Ignoring since this exit is not defined by SDM
+[ 4969.207359] Exit Reason: 35. Ignoring since this exit is not defined by SDM
+[ 4969.219756] Exit count for 36 = 0
+[ 4969.221851] Exit count for 36 = 0
+[ 4969.234469] Exit count for 37 = 0
+[ 4969.236304] Exit count for 37 = 0
+[ 4969.247679] Exit Reason: 38. Ignoring since this exit is not defined by SDM
+[ 4969.249625] Exit Reason: 38. Ignoring since this exit is not defined by SDM
+[ 4969.259876] Exit count for 39 = 0
+[ 4969.261772] Exit count for 39 = 0
+[ 4969.275558] Exit count for 40 = 4577
+[ 4969.278343] Exit count for 40 = 4577
+[ 4969.290581] Exit count for 41 = 0
+[ 4969.292655] Exit count for 41 = 0
+[ 4969.304354] Exit Reason: 42. Ignoring since this exit is not defined by SDM
+[ 4969.307204] Exit Reason: 42. Ignoring since this exit is not defined by SDM
+[ 4969.321416] Exit count for 43 = 0
+[ 4969.323223] Exit count for 43 = 0
+[ 4969.335574] Exit count for 44 = 11
+[ 4969.338070] Exit count for 44 = 11
+[ 4969.351878] Exit count for 45 = 0
+[ 4969.354852] Exit count for 45 = 0
+[ 4969.367664] Exit count for 46 = 0
+[ 4969.370544] Exit count for 46 = 0
+[ 4969.383330] Exit count for 47 = 0
+[ 4969.385199] Exit count for 47 = 0
+[ 4969.398927] Exit count for 48 = 0
+[ 4969.401824] Exit count for 48 = 0
+[ 4969.413526] Exit count for 49 = 0
+[ 4969.416000] Exit count for 49 = 0
+[ 4969.431210] Exit count for 50 = 0
+[ 4969.433141] Exit count for 50 = 0
+[ 4969.445253] Exit count for 51 = 0
+[ 4969.447167] Exit count for 51 = 0
+[ 4969.459331] Exit count for 52 = 7446
+[ 4969.461526] Exit count for 52 = 7447
+[ 4969.475832] Exit count for 53 = 0
+[ 4969.477770] Exit count for 53 = 0
+[ 4969.489705] Exit count for 54 = 8
+[ 4969.491523] Exit count for 54 = 8
+[ 4969.504397] Exit count for 55 = 0
+[ 4969.509152] Exit count for 55 = 0
+[ 4969.520544] Exit count for 56 = 0
+[ 4969.523490] Exit count for 56 = 0
+[ 4969.536832] Exit count for 57 = 0
+[ 4969.538750] Exit count for 57 = 0
+[ 4969.553850] Exit count for 58 = 0
+[ 4969.556576] Exit count for 58 = 0
+[ 4969.568295] Exit count for 59 = 0
+[ 4969.570610] Exit count for 59 = 0
+[ 4969.583958] Exit count for 60 = 0
+[ 4969.585909] Exit count for 60 = 0
+[ 4969.598609] Exit count for 61 = 0
+[ 4969.600503] Exit count for 61 = 0
+[ 4969.611650] Exit count for 62 = 0
+[ 4969.613698] Exit count for 62 = 0
+[ 4969.625931] Exit count for 63 = 0
+[ 4969.627764] Exit count for 63 = 0
+[ 4969.642783] Exit count for 64 = 0
+[ 4969.646084] Exit count for 64 = 0
+[ 4969.659830] Exit Reason: 65. Ignoring since this exit is not defined by SDM
+[ 4969.662412] Exit Reason: 65. Ignoring since this exit is not defined by SDM
+[ 4969.675211] Exit count for 66 = 0
+[ 4969.677640] Exit count for 66 = 0
+[ 4969.693191] Exit count for 67 = 0
+[ 4969.695795] Exit count for 67 = 0
+[ 4969.711061] Exit count for 68 = 0
+[ 4969.713803] Exit count for 68 = 0
+[ 4969.727922] Exit Reason: 69. Ignoring since this exit reason > 68
+[ 4969.729876] Exit Reason: 69. Ignoring since this exit reason > 68
+[ 4969.744039] Exit Reason: 70. Ignoring since this exit reason > 68
+[ 4969.747250] Exit Reason: 70. Ignoring since this exit reason > 68
+[ 4969.761743] Exit Reason: 71. Ignoring since this exit reason > 68
+[ 4969.764344] Exit Reason: 71. Ignoring since this exit reason > 68
+[ 4969.775689] Exit Reason: 72. Ignoring since this exit reason > 68
+[ 4969.777541] Exit Reason: 72. Ignoring since this exit reason > 68
+[ 4969.790392] Exit Reason: 73. Ignoring since this exit reason > 68
+[ 4969.792331] Exit Reason: 73. Ignoring since this exit reason > 68
+[ 4969.803144] Exit Reason: 74. Ignoring since this exit reason > 68
+[ 4969.804965] Exit Reason: 74. Ignoring since this exit reason > 68
+[ 4969.816227] Exit Reason: 75. Ignoring since this exit reason > 68
+[ 4969.818099] Exit Reason: 75. Ignoring since this exit reason > 68
+[ 4969.830972] Exit Reason: 76. Ignoring since this exit reason > 68
+[ 4969.832898] Exit Reason: 76. Ignoring since this exit reason > 68
+[ 4969.843606] Exit Reason: 77. Ignoring since this exit reason > 68
+[ 4969.845526] Exit Reason: 77. Ignoring since this exit reason > 68
+[ 4969.857747] Exit Reason: 78. Ignoring since this exit reason > 68
+[ 4969.859578] Exit Reason: 78. Ignoring since this exit reason > 68
+[ 4969.872104] Exit Reason: 79. Ignoring since this exit reason > 68
+[ 4969.874364] Exit Reason: 79. Ignoring since this exit reason > 68
+[ 4969.884947] Exit Reason: 80. Ignoring since this exit reason > 68
+[ 4969.886964] Exit Reason: 80. Ignoring since this exit reason > 68
+[ 4969.898358] Exit Reason: 81. Ignoring since this exit reason > 68
+[ 4969.901530] Exit Reason: 81. Ignoring since this exit reason > 68
+[ 4969.914139] Exit Reason: 82. Ignoring since this exit reason > 68
+[ 4969.915984] Exit Reason: 82. Ignoring since this exit reason > 68
+[ 4969.929000] Exit Reason: 83. Ignoring since this exit reason > 68
+[ 4969.931626] Exit Reason: 83. Ignoring since this exit reason > 68
+[ 4969.944135] Exit Reason: 84. Ignoring since this exit reason > 68
+[ 4969.946775] Exit Reason: 84. Ignoring since this exit reason > 68
+[ 4969.959852] Exit Reason: 85. Ignoring since this exit reason > 68
+[ 4969.962185] Exit Reason: 85. Ignoring since this exit reason > 68
+[ 4969.976080] Exit Reason: 86. Ignoring since this exit reason > 68
+[ 4969.978119] Exit Reason: 86. Ignoring since this exit reason > 68
+[ 4969.989593] Exit Reason: 87. Ignoring since this exit reason > 68
+[ 4969.991435] Exit Reason: 87. Ignoring since this exit reason > 68
+[ 4970.002994] Exit Reason: 88. Ignoring since this exit reason > 68
+[ 4970.004812] Exit Reason: 88. Ignoring since this exit reason > 68
+[ 4970.020633] Exit Reason: 89. Ignoring since this exit reason > 68
+[ 4970.023341] Exit Reason: 89. Ignoring since this exit reason > 68
+[ 4970.037503] Exit Reason: 90. Ignoring since this exit reason > 68
+[ 4970.040179] Exit Reason: 90. Ignoring since this exit reason > 68
+[ 4970.054897] Exit Reason: 91. Ignoring since this exit reason > 68
+[ 4970.057008] Exit Reason: 91. Ignoring since this exit reason > 68
+[ 4970.071191] Exit Reason: 92. Ignoring since this exit reason > 68
+[ 4970.073925] Exit Reason: 92. Ignoring since this exit reason > 68
+[ 4970.087660] Exit Reason: 93. Ignoring since this exit reason > 68
+[ 4970.090653] Exit Reason: 93. Ignoring since this exit reason > 68
+[ 4970.103627] Exit Reason: 94. Ignoring since this exit reason > 68
+[ 4970.105538] Exit Reason: 94. Ignoring since this exit reason > 68
+[ 4970.118436] Exit Reason: 95. Ignoring since this exit reason > 68
+[ 4970.120470] Exit Reason: 95. Ignoring since this exit reason > 68
+[ 4970.132186] Exit Reason: 96. Ignoring since this exit reason > 68
+[ 4970.134572] Exit Reason: 96. Ignoring since this exit reason > 68
+[ 4970.146022] Exit Reason: 97. Ignoring since this exit reason > 68
+[ 4970.147925] Exit Reason: 97. Ignoring since this exit reason > 68
+[ 4970.158621] Exit Reason: 98. Ignoring since this exit reason > 68
+[ 4970.160307] Exit Reason: 98. Ignoring since this exit reason > 68
+[ 4970.173721] Exit Reason: 99. Ignoring since this exit reason > 68
+[ 4970.175537] Exit Reason: 99. Ignoring since this exit reason > 68
+[ 4970.185772] Exit Reason: 100. Ignoring since this exit reason > 68
