@@ -1075,9 +1075,12 @@ EXPORT_SYMBOL_GPL(kvm_cpuid);
 
 atomic64_t totalExitProcessingTime = ATOMIC64_INIT(0);
 atomic_t numberOfExits = ATOMIC_INIT(0);
+atomic64_t kvm_vmx_exit_handlers_count[69] = {};
+atomic64_t invalid_exits[4] = {{35},{38},{42},{65}}; //list of exits not defined in sdm
 EXPORT_SYMBOL(totalExitProcessingTime);
 EXPORT_SYMBOL(numberOfExits);
-
+EXPORT_SYMBOL(kvm_vmx_exit_handlers_count);
+EXPORT_SYMBOL(invalid_exits);
 
 int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 {
@@ -1088,15 +1091,40 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 		return 1;
 	eax = kvm_rax_read(vcpu);
 	ecx = kvm_rcx_read(vcpu);
-	printk("Number of Exits: %d Processing Time : %lld",atomic_read(&numberOfExits),atomic64_read(&totalExitProcessingTime));
-
+	//printk("Number of Exits: %d Processing Time : %lld",atomic_read(&numberOfExits),atomic64_read(&totalExitProcessingTime));
+  //printk("Size of count list is %lld",atomic64_read(sizeof(&kvm_vmx_exit_handlers_count));
   	if ( eax == 0x4FFFFFFF ) {
 		eax=atomic_read(&numberOfExits);
 		temp=atomic64_read(&totalExitProcessingTime);
 		ebx=(u32)(temp>>32); //adding high 32 bits of processing time to ebx
 		ecx=(u32)(temp); //adding low 32 bits of processing to ecx
 
-	} else {
+	} else if ( eax == 0x4FFFFFFE ) { //Exit number will be passed in ecx
+    
+    int i;
+    bool flag=false;
+    for(i=0;i<4;i++){
+      if(atomic64_read(&invalid_exits[i])==ecx){
+        flag=true;
+      }
+    }
+    if(flag){
+      eax=0;
+      edx=0xFFFFFFF;
+      printk("Exit Reason: %d. Ignoring since this exit is not defined by SDM",ecx);
+    } else if(ecx>68){
+        edx=0;
+        eax=0;
+        printk("Exit Reason: %d. Ignoring since this exit reason > 68",ecx);
+    } else { //if exit is present in sdm. if it is not defined by kvm, the value will be zero.
+      eax=atomic64_read(&kvm_vmx_exit_handlers_count[ecx]);
+      edx=0;
+      printk("Exit count for %d = %lld",ecx,atomic64_read(&kvm_vmx_exit_handlers_count[ecx]));
+    }
+    ebx=0;
+    ecx=0;
+
+  } else {
 	  kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, false);
 	}
 	  kvm_rax_write(vcpu, eax);

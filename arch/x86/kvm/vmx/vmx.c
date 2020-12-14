@@ -5748,6 +5748,59 @@ static int (*kvm_vmx_exit_handlers[])(struct kvm_vcpu *vcpu) = {
 	[EXIT_REASON_PREEMPTION_TIMER]	      = handle_preemption_timer,
 	[EXIT_REASON_ENCLS]		      = handle_encls,
 };
+//int kvm_vmx_exit_handlers_count[68] = {};
+//static int (*kvm_vmx_exit_handlers_count[])() = {
+//  [EXIT_REASON_EXCEPTION_NMI]           = 0,
+//  [EXIT_REASON_EXTERNAL_INTERRUPT]      = 0,
+//  [EXIT_REASON_TRIPLE_FAULT]            = 0,
+//  [EXIT_REASON_NMI_WINDOW]              = 0,
+//  [EXIT_REASON_IO_INSTRUCTION]          = 0,
+//  [EXIT_REASON_CR_ACCESS]               = 0,
+//  [EXIT_REASON_DR_ACCESS]               = 0,
+//  [EXIT_REASON_CPUID]                   = 0,
+//  [EXIT_REASON_MSR_READ]                = 0,
+//  [EXIT_REASON_MSR_WRITE]               = 0,
+//  [EXIT_REASON_INTERRUPT_WINDOW]        = 0,
+//  [EXIT_REASON_HLT]                     = 0,
+//  [EXIT_REASON_INVD]                    = 0,
+//  [EXIT_REASON_INVLPG]                  = 0,
+//  [EXIT_REASON_RDPMC]                   = 0,
+//  [EXIT_REASON_VMCALL]                  = 0,
+//  [EXIT_REASON_VMCLEAR]                 = 0,
+//  [EXIT_REASON_VMLAUNCH]                = 0,
+//  [EXIT_REASON_VMPTRLD]                 = 0,
+//  [EXIT_REASON_VMPTRST]                 = 0,
+//  [EXIT_REASON_VMREAD]                  = 0,
+//  [EXIT_REASON_VMRESUME]                = 0,
+//  [EXIT_REASON_VMWRITE]                 = 0,
+//  [EXIT_REASON_VMOFF]                   = 0,
+//  [EXIT_REASON_VMON]                    = 0,
+//  [EXIT_REASON_TPR_BELOW_THRESHOLD]     = 0,
+//  [EXIT_REASON_APIC_ACCESS]             = 0,
+//  [EXIT_REASON_APIC_WRITE]              = 0,
+//  [EXIT_REASON_EOI_INDUCED]             = 0,
+//  [EXIT_REASON_WBINVD]                  = 0,
+//  [EXIT_REASON_XSETBV]                  = 0,
+//  [EXIT_REASON_TASK_SWITCH]             = 0,
+//  [EXIT_REASON_MCE_DURING_VMENTRY]      = 0,
+//  [EXIT_REASON_GDTR_IDTR]               = 0,
+//  [EXIT_REASON_LDTR_TR]                 = 0,
+//  [EXIT_REASON_EPT_VIOLATION]           = 0,
+//  [EXIT_REASON_EPT_MISCONFIG]           = 0,
+//  [EXIT_REASON_PAUSE_INSTRUCTION]       = 0,
+//  [EXIT_REASON_MWAIT_INSTRUCTION]       = 0,
+//  [EXIT_REASON_MONITOR_TRAP_FLAG]       = 0,
+//  [EXIT_REASON_MONITOR_INSTRUCTION]     = 0,
+//  [EXIT_REASON_INVEPT]                  = 0,
+//  [EXIT_REASON_INVVPID]                 = 0,
+//  [EXIT_REASON_RDRAND]                  = 0,
+//  [EXIT_REASON_RDSEED]                  = 0,
+//  [EXIT_REASON_PML_FULL]                = 0,
+//  [EXIT_REASON_INVPCID]                 = 0,
+//  [EXIT_REASON_VMFUNC]                  = 0,
+//  [EXIT_REASON_PREEMPTION_TIMER]        = 0,
+//  [EXIT_REASON_ENCLS]                   = 0
+//};
 
 static const int kvm_vmx_max_exit_handlers =
 	ARRAY_SIZE(kvm_vmx_exit_handlers);
@@ -5987,6 +6040,8 @@ void dump_vmcs(void)
  */
 extern atomic_t numberOfExits;
 extern atomic64_t totalExitProcessingTime;
+extern atomic64_t kvm_vmx_exit_handlers_count[69];
+extern atomic64_t invalid_exits[4];
 
 static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 {
@@ -5996,8 +6051,18 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	struct vcpu_vmx *vmx = to_vmx(vcpu);
 	u32 exit_reason = vmx->exit_reason;
 	u32 vectoring_info = vmx->idt_vectoring_info;
+  int i=0;
+  bool flag=false;
 	atomic_inc(&numberOfExits); //increment the number of exits encountered by one
-  //printk("HANDLE VMEXIT !!!!!!!!!!!!!!!!!!");
+  
+  for(i=0;i<4;i++){
+    //printk("%lld,%d",atomic64_read(&invalid_exits[i]),exit_reason);
+    if(atomic64_read(&invalid_exits[i])==exit_reason){
+      flag=true;
+    }
+  }
+  if(!flag && exit_reason<69) 
+    atomic64_inc(&kvm_vmx_exit_handlers_count[exit_reason]);
 	/*
 	 * Flush logged GPAs PML buffer, this will make dirty_bitmap more
 	 * updated. Another good is, in kvm_vm_ioctl_get_dirty_log, before
@@ -6151,7 +6216,7 @@ static int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
 	// if exit reason in range of number of exit handlers defined
 	// and if the exit reason is present in map
 	// then handle exit and calculate time spent
-	if(exit_reason < kvm_vmx_max_exit_handlers && kvm_vmx_exit_handlers[exit_reason]){	 
+	if(exit_reason < kvm_vmx_max_exit_handlers && kvm_vmx_exit_handlers[exit_reason]){
 		 int returnValue = kvm_vmx_exit_handlers[exit_reason](vcpu);
 		 u64 endExitTime=rdtsc();
 		 delta=endExitTime-startExitTime;
